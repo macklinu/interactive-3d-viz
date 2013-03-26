@@ -15,8 +15,6 @@
  * 
  *
  */
- 
-import org.gicentre.utils.multisketch.*; 
 
 FryTable salaryTable; // Processing's built-in Table class (2.0+) wasn't working natively, so I used the one from Ben Fry's Visualizing Data
 Table saveTable;
@@ -42,11 +40,6 @@ void setup() {
   colorMode(HSB, 360);
   createSaveTable();
   loadData("salary.tsv");
-  int scNum = 9;
-  scrollbars = new Scrollbar[scNum];
-  for (int i = 0; i < scrollbars.length; i++) {
-    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/4, 15, 4, scrollbars);
-  }
 
   mx = my = 0.5;
   fov = mx * PI/2;
@@ -55,6 +48,13 @@ void setup() {
   aspect = float(width)/float(height);
 
   onRunTime = timestamp();
+
+  int scNum = 9;
+  scrollbars = new Scrollbar[scNum];
+
+  for (int i = 0; i < scrollbars.length; i++) {
+    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 4, scrollbars);
+  }
 
   //eyeX; eyeY; eyeZ; centerX; centerY; centerZ; upX; upY; upZ;
 }
@@ -83,12 +83,11 @@ void draw() {
   drawAxes();
   drawData();
 
+  // 2D code goes here
   hint(DISABLE_DEPTH_TEST);
   camera();
   noLights();
-  // 2D code
   drawScrollbars();
-  println();
   hint(ENABLE_DEPTH_TEST);
 }
 
@@ -98,6 +97,7 @@ void drawScrollbars() {
     scrollbars[i].display();
     print(scrollbars[i].getPos() + "\t");
   }
+  println();
 }
 
 void mouseReleased() {
@@ -105,7 +105,6 @@ void mouseReleased() {
     scrollbars[i].releaseEvent();
   }
 }
-
 
 void keyPressed() {
   if (key == CODED) {
