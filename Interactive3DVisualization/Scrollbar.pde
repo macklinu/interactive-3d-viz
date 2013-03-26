@@ -9,10 +9,13 @@ class Scrollbar {
   boolean locked = false;
   boolean otherslocked = false;
   float ratio;
-  float brightnessMod, activeMod, inactiveMod;
+  float scrollbarMult, scrollbarActiveMult, scrollbarInactiveMult;
+  float valueMult, valueInactiveMult, valueActiveMult;
   Scrollbar[] others;
+  String id;
+  PFont font;
 
-  Scrollbar (float xp, float yp, int sw, int sh, int l, Scrollbar[] o) {
+  Scrollbar (float xp, float yp, int sw, int sh, int l, Scrollbar[] others, String id) {
     swidth = sw;
     sheight = sh;
     int widthtoheight = sw - sh;
@@ -24,12 +27,20 @@ class Scrollbar {
     sposMin = xpos;
     sposMax = xpos + swidth - sheight;
     loose = l;
-    others = o;
-    
+    this.others = others;
+    this.id = id;
+
     Ani.init(Interactive3DVisualization.this);
-    activeMod = .3;
-    inactiveMod = .86;
-    brightnessMod = inactiveMod;
+    scrollbarActiveMult = .3;
+    scrollbarInactiveMult = .86;
+    scrollbarMult = scrollbarInactiveMult;
+
+    valueInactiveMult = .05; 
+    valueActiveMult = .97; 
+    valueMult = valueInactiveMult;
+    
+    font = loadFont("Inconsolata.vlw");
+    textFont(font);
   }
 
   void update() {
@@ -86,14 +97,31 @@ class Scrollbar {
     fill(204, 50);
     rect(xpos, ypos, swidth - sheight, sheight, 2);
     if (over || locked) {
-      fill(148, 360*.49, 360*brightnessMod);
-      Ani.to(this, 1.0, "brightnessMod", activeMod);
+      fill(148, 360*.49, 360*scrollbarMult);
+      Ani.to(this, 0.3, "scrollbarMult", scrollbarActiveMult);
     } 
     else {
-      fill(148, 360*.49, 360*brightnessMod);
-      Ani.to(this, 1.0, "brightnessMod", inactiveMod);
+      fill(148, 360*.49, 360*scrollbarMult);
+      Ani.to(this, 0.3, "scrollbarMult", scrollbarInactiveMult);
     }
     rect(xpos, ypos, spos, sheight, 2);
+    // display the scrollbar ID and value ideally
+    displayText();
+  }
+
+  private void displayText() {
+    textSize(14);
+    if (over || locked) {
+      fill(150, 0, 360*valueMult);
+      Ani.to(this, 0.3, "valueMult", valueActiveMult);
+    } 
+    else {
+      fill(150, 0, 360*valueMult);
+      Ani.to(this, 0.3, "valueMult", valueInactiveMult);
+    }
+    text(id, sposMin + 4, ypos + sheight/2 + textAscent()/2);
+    fill(150, 0, 360*valueInactiveMult);
+    text(map(getPos(), 0, width, 0, 1), sposMax, ypos + sheight - (textDescent() + textAscent())/2);
   }
 
   float getPos() {

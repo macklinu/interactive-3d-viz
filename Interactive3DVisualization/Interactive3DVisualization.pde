@@ -35,6 +35,11 @@ float xMax, yMax, zMax;
 float eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ;
 boolean showGUI = true;
 
+String[] cameraNames = {
+  "eyeX", "eyeY", "eyeZ", "centerX", "centerY", "centerZ", "upX", "upY", "upZ"
+};
+float[] cameraValues = new float[cameraNames.length];
+
 void setup() {
   size(1280, 720, P3D);
   smooth();
@@ -51,11 +56,10 @@ void setup() {
 
   onRunTime = timestamp();
 
-  int scNum = 9;
-  scrollbars = new Scrollbar[scNum];
+  scrollbars = new Scrollbar[cameraNames.length];
 
   for (int i = 0; i < scrollbars.length; i++) {
-    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 8, scrollbars);
+    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 8, scrollbars, cameraNames[i]);
   }
 
   //eyeX; eyeY; eyeZ; centerX; centerY; centerZ; upX; upY; upZ;
@@ -91,7 +95,7 @@ void drawScrollbars() {
     scrollbars[i].update();
     scrollbars[i].display();
   }
-  assignScrollbars();
+  //assignScrollbars();
 }
 
 /*
