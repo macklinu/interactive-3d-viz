@@ -1,5 +1,4 @@
 class Scrollbar {
-  
   int swidth, sheight;    // width and height of bar
   float xpos, ypos;       // x and y position of bar
   float spos, newspos;    // x position of slider
@@ -10,6 +9,7 @@ class Scrollbar {
   boolean locked = false;
   boolean otherslocked = false;
   float ratio;
+  float brightnessMod, activeMod, inactiveMod;
   Scrollbar[] others;
 
   Scrollbar (float xp, float yp, int sw, int sh, int l, Scrollbar[] o) {
@@ -25,6 +25,11 @@ class Scrollbar {
     sposMax = xpos + swidth - sheight;
     loose = l;
     others = o;
+    
+    Ani.init(Interactive3DVisualization.this);
+    activeMod = .3;
+    inactiveMod = .86;
+    brightnessMod = inactiveMod;
   }
 
   void update() {
@@ -81,10 +86,12 @@ class Scrollbar {
     fill(204, 50);
     rect(xpos, ypos, swidth - sheight, sheight, 2);
     if (over || locked) {
-      fill(148, 360*.49, 360*.3);
+      fill(148, 360*.49, 360*brightnessMod);
+      Ani.to(this, 1.0, "brightnessMod", activeMod);
     } 
     else {
-      fill(148, 360*.49, 360*.86);
+      fill(148, 360*.49, 360*brightnessMod);
+      Ani.to(this, 1.0, "brightnessMod", inactiveMod);
     }
     rect(xpos, ypos, spos, sheight, 2);
   }

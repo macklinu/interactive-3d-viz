@@ -15,6 +15,7 @@
  * 
  *
  */
+import de.looksgood.ani.*;
 
 FryTable salaryTable; // Processing's built-in Table class (2.0+) wasn't working natively, so I used the one from Ben Fry's Visualizing Data
 Table saveTable;
@@ -32,6 +33,7 @@ float xMin, yMin, zMin;
 float xMax, yMax, zMax;
 // camera variables
 float eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ;
+boolean showGUI = true;
 
 void setup() {
   size(1280, 720, P3D);
@@ -53,23 +55,16 @@ void setup() {
   scrollbars = new Scrollbar[scNum];
 
   for (int i = 0; i < scrollbars.length; i++) {
-    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 4, scrollbars);
+    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 8, scrollbars);
   }
 
   //eyeX; eyeY; eyeZ; centerX; centerY; centerZ; upX; upY; upZ;
 }
 
 void draw() {
-  // allow for interactive camera via mouse position
-  /*
-  fov = mouseX/float(width) * PI/2;
-   cameraY = height/2.0;
-   cameraZ = cameraY / tan(fov / 2.0);
-   aspect = float(width)/float(height);
-   */
   background(300);
-  //camera();
-  camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), width/2.0, height/2.0, 0, 0, 1, 0);
+  // allow for interactive camera via mouse position
+  camera(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
   //camera(mouseX, height/2, (height/2) / tan(PI/6), mouseX, height/2, 0, 0, 1, 0);
   lights();
   directionalLight(255, 255, 255, 0, 0, 1);
@@ -87,7 +82,7 @@ void draw() {
   hint(DISABLE_DEPTH_TEST);
   camera();
   noLights();
-  drawScrollbars();
+  if (showGUI) drawScrollbars();
   hint(ENABLE_DEPTH_TEST);
 }
 
@@ -95,9 +90,49 @@ void drawScrollbars() {
   for (int i = 0; i < scrollbars.length; i++) {
     scrollbars[i].update();
     scrollbars[i].display();
-    print(scrollbars[i].getPos() + "\t");
   }
-  println();
+  assignScrollbars();
+}
+
+/*
+// Need to figure out why this won't work
+ void assignScrollbar(float in, Scrollbar s) {
+ textSize(12);
+ fill(20);
+ in = constrain(map(s.getPos(), 0, s.sposMax, 0, width), 0, width);
+ text(map(in, 0, width, 0, 1), s.sposMax, s.ypos + s.sheight/2);
+ }
+ */
+void assignScrollbars() {
+  textSize(12);
+  fill(20);
+  eyeX = constrain(map(scrollbars[0].getPos(), 0, scrollbars[0].sposMax, 0, width), 0, width);
+  text("eyeX", scrollbars[0].sposMin, scrollbars[0].ypos + scrollbars[0].sheight/2 + textAscent()/2);
+  text(map(eyeX, 0, width, 0, 1), scrollbars[0].sposMax, scrollbars[0].ypos + scrollbars[0].sheight/2);
+  eyeY = constrain(map(scrollbars[1].getPos(), 0, scrollbars[1].sposMax, 0, width), 0, width);
+  text("eyeY", scrollbars[1].sposMin, scrollbars[1].ypos + scrollbars[1].sheight/2 + textAscent()/2);
+  text(map(eyeY, 0, width, 0, 1), scrollbars[1].sposMax, scrollbars[1].ypos + scrollbars[1].sheight/2);
+  eyeZ = constrain(map(scrollbars[2].getPos(), 0, scrollbars[2].sposMax, 0, width / tan(PI*30.0 / 180.0)), 0, width / tan(PI*30.0 / 180.0));
+  text("eyeZ", scrollbars[2].sposMin, scrollbars[2].ypos + scrollbars[2].sheight/2 + textAscent()/2);
+  text(map(eyeZ, 0, width / tan(PI*30.0 / 180.0), 0, 1), scrollbars[2].sposMax, scrollbars[2].ypos + scrollbars[2].sheight/2);
+  centerX = constrain(map(scrollbars[3].getPos(), 0, scrollbars[3].sposMax, 0, width), 0, width);
+  text("centerX", scrollbars[3].sposMin, scrollbars[3].ypos + scrollbars[3].sheight/2 + textAscent()/2);
+  text(map(centerX, 0, width, 0, 1), scrollbars[3].sposMax, scrollbars[3].ypos + scrollbars[3].sheight/2);
+  centerY = constrain(map(scrollbars[4].getPos(), 0, scrollbars[4].sposMax, 0, width), 0, width);
+  text("centerY", scrollbars[4].sposMin, scrollbars[4].ypos + scrollbars[4].sheight/2 + textAscent()/2);
+  text(map(centerY, 0, width, 0, 1), scrollbars[4].sposMax, scrollbars[4].ypos + scrollbars[4].sheight/2);
+  centerZ = constrain(map(scrollbars[5].getPos(), 0, scrollbars[5].sposMax, 0, width), 0, width);
+  text("centerZ", scrollbars[5].sposMin, scrollbars[5].ypos + scrollbars[5].sheight/2 + textAscent()/2);
+  text(map(centerZ, 0, width, 0, 1), scrollbars[5].sposMax, scrollbars[5].ypos + scrollbars[5].sheight/2);
+  upX = constrain(map(scrollbars[6].getPos(), 0, scrollbars[6].sposMax, 0.0, 1.0), 0.0, 1.0);
+  text("upX", scrollbars[6].sposMin, scrollbars[6].ypos + scrollbars[6].sheight/2 + textAscent()/2);
+  text(upX, scrollbars[6].sposMax, scrollbars[6].ypos + scrollbars[6].sheight/2);
+  upY = constrain(map(scrollbars[7].getPos(), 0, scrollbars[7].sposMax, 0.0, 1.0), 0.0, 1.0);
+  text("upY", scrollbars[7].sposMin, scrollbars[7].ypos + scrollbars[7].sheight/2 + textAscent()/2);
+  text(upY, scrollbars[7].sposMax, scrollbars[7].ypos + scrollbars[7].sheight/2);
+  upZ = constrain(map(scrollbars[8].getPos(), 0, scrollbars[8].sposMax, -1.0, 1.0), -1.0, 1.0);
+  text("upZ", scrollbars[8].sposMin, scrollbars[8].ypos + scrollbars[8].sheight/2 + textAscent()/2);
+  text(upZ, scrollbars[8].sposMax, scrollbars[8].ypos + scrollbars[8].sheight/2);
 }
 
 void mouseReleased() {
@@ -112,22 +147,32 @@ void keyPressed() {
   }
   if (key == 's' || key == 'S') {
     TableRow newRow = saveTable.addRow();
-    newRow.setInt("mouseX", mouseX);
-    newRow.setInt("mouseY", mouseY);
-    newRow.setFloat("randomNumber", random(200));
-    newRow.setInt("millis", millis());
+    newRow.setFloat("eyeX", eyeX);
+    newRow.setFloat("eyeY", eyeY);
+    newRow.setFloat("eyeZ", eyeZ);
+    newRow.setFloat("centerX", centerX);
+    newRow.setFloat("centerY", centerY);
+    newRow.setFloat("centerZ", centerZ);
+    newRow.setFloat("upX", upX);
+    newRow.setFloat("upY", upY);
+    newRow.setFloat("upZ", upZ);
     saveTable(saveTable, "data/animation/" + onRunTime + "_cameraPoints.csv");
   }
 
-  if (key == 'c' || key == 'C') println();
+  if (key == 'h' || key == 'H') showGUI = !showGUI;
 }
 
 void createSaveTable() {
   saveTable = createTable();
-  saveTable.addColumn("mouseX");
-  saveTable.addColumn("mouseY");
-  saveTable.addColumn("randomNumber");
-  saveTable.addColumn("millis");
+  saveTable.addColumn("eyeX");
+  saveTable.addColumn("eyeY");
+  saveTable.addColumn("eyeZ");
+  saveTable.addColumn("centerX");
+  saveTable.addColumn("centerY");
+  saveTable.addColumn("centerZ");
+  saveTable.addColumn("upX");
+  saveTable.addColumn("upY");
+  saveTable.addColumn("upZ");
 }
 
 
@@ -141,7 +186,7 @@ void drawAxes() {
   fill(0);
   strokeWeight(1);
   stroke(0, 360, 360, 360);
-  line(0, 0, 0, -width, 0, 0);
+  line(0, 0, 0, width, 0, 0);
   textSize(48);
   text("x", width, 0, 0);
   stroke(127, 360, 360, 360);
