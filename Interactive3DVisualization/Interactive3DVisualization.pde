@@ -41,8 +41,7 @@ float[] tx, ty, tz;
 // camera variables
 boolean showGUI = true;
 boolean show3D = true;
-boolean hoverOver = false;
-
+boolean[] hoverOver;;
 
 void setup() {
   // sketch initialization
@@ -61,6 +60,7 @@ void setup() {
   createSaveTable();
   loadData("salary.tsv");
   tx = ty = tz = new float[x.length];
+  hoverOver = new boolean[x.length];
   readTable = new CSV(dataPath("animation/20130327_015220_cameraPoints.csv"));
 }
 
@@ -78,14 +78,24 @@ void draw() {
   hint(DISABLE_DEPTH_TEST);
   camera();
   noLights();
-  if (showGUI && show3D) drawScrollbars();
+  if (show3D) {
+    if (showGUI) {
+      drawScrollbars();
+    }
+    for (int i = 0; i < x.length; i++) {
+    if (hoverOver[i] == true) { 
+      fill(34, 34, 34);
+      textSize(12);
+      text(x[i], mouseX, mouseY);
+    }
+    }
+  }
   if (!show3D) {
     stroke(0);
     strokeWeight(2);
     textSize(48);
     text("2D mode", width/2, height/2);
   }
-  //text(
   hint(ENABLE_DEPTH_TEST);
 }
 
@@ -141,7 +151,6 @@ void createSaveTable() {
   }
 }
 
-
 void drawAxes() {
   fill(0);
   strokeWeight(1);
@@ -169,9 +178,12 @@ void drawData() {
     noStroke();
     if (dist(mouseX, mouseY, screenX(tx, ty, tz), screenY(tx, ty, tz)) < sz) { // 3D picking
       fill(hue, 360, 360, 220);
-      hoverOver = true;
+      hoverOver[i] = true;
     }
-    else fill(hue, 360, 360);
+    else { 
+      fill(hue, 360, 360);
+      hoverOver[i] = false;
+    }
     ambient(255, 26, 160);
     translate(tx, ty, tz);
     sphere(sz);
@@ -206,13 +218,6 @@ void loadData(String filename) {
   }
   // find the minimum and maximum values in each data set
   setMinMax();
-  /*
-  // cannot set Min and Max with this created function
-   // not sure why
-   findMinMax(x, xMin, xMax);
-   findMinMax(y, yMin, yMax);
-   findMinMax(z, zMin, zMax);
-   */
 }
 
 void findMinMax(float[] arr, float minimum, float maximum) {

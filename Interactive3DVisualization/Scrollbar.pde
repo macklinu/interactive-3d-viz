@@ -141,7 +141,7 @@ class Scrollbar {
     }
     text(id, sposMin + idOffset, ypos + sheight/2 + textAscent()/2);
     fill(150, 0, 360*valueInactiveMult);
-    text(constrain(map(getPos(), sposMin, sposMax, 0, 1), 0, 1), sposMax, ypos + sheight - (textDescent() + textAscent())/2);
+    text(constrain(map(spos, sposMin, sposMax, 0, 1), 0, 1), sposMax, ypos + sheight - (textDescent() + textAscent())/2);
   }
 
   float getValue() {
