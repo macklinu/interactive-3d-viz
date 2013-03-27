@@ -21,6 +21,7 @@ import de.looksgood.ani.*;
 FryTable salaryTable; // Processing's built-in Table class (2.0+) wasn't working natively, so I used the one from Ben Fry's Visualizing Data
 Table saveTable;
 Scrollbar[] scrollbars;
+CSV readTable;
 
 int w = 1280, h = 720;
 
@@ -65,6 +66,8 @@ void setup() {
   // prepare data
   createSaveTable();
   loadData("salary.tsv");
+  readTable = new CSV(dataPath("animation/20130327_015220_cameraPoints.csv"));
+  /*
   lines = loadStrings(dataPath("animation/20130327_015220_cameraPoints.csv"));
   for (int i = 0; i < lines.length; i++) {
     String [] chars = split(lines[i], ",");
@@ -80,6 +83,7 @@ void setup() {
       csv[i][j] = temp[j];
     }
   }
+  */
   onRunTime = timestamp();
   scrollbars = new Scrollbar[cameraNames.length];
   for (int i = 0; i < scrollbars.length; i++) {
@@ -128,19 +132,19 @@ void keyPressed() {
   if (key == CODED) {
     if (keyCode == LEFT) {
       int test = cur;
-      cur = constrain(--cur, 1, lines.length);
+      cur = constrain(--cur, 1, readTable.getRowCount());
       if (test != cur) {
-        for (int i = 0; i < csvWidth; i++) {
-          scrollbars[i].setValue(parseFloat(csv[cur][i]));
+        for (int i = 0; i < readTable.getColumnCount(); i++) {
+          scrollbars[i].setValue(readTable.getFloat(cur, i));
         }
       }
     }
     if (keyCode == RIGHT) {
       int test = cur;
-      cur = constrain(++cur, 1, lines.length - 1);
+      cur = constrain(++cur, 1, readTable.getRowCount());
       if (test != cur) {
-        for (int i = 0; i < csvWidth; i++) {
-          scrollbars[i].setValue(parseFloat(csv[cur][i]));
+        for (int i = 0; i < readTable.getColumnCount(); i++) {
+          scrollbars[i].setValue(readTable.getFloat(cur, i));
         }
       }
     }
@@ -187,7 +191,7 @@ void drawData() {
     float sz = map(x[i], xMin, xMax, 5, 15);
     pushMatrix();
     noStroke();
-    if (dist(mouseX, mouseY, screenX(tx, ty, tz), screenY(tx, ty, tz)) < sz) fill(hue, 360, 360, 220);
+    if (dist(mouseX, mouseY, screenX(tx, ty, tz), screenY(tx, ty, tz)) < sz) fill(hue, 360, 360, 220); // 3D picking
     else fill(hue, 360, 360);
     ambient(255, 26, 160);
     translate(tx, ty, tz);

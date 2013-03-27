@@ -48,7 +48,7 @@ class Scrollbar {
     valueInactiveMult = .05; 
     valueActiveMult = .97; 
     valueMult = valueInactiveMult;
-    
+
     font = loadFont("Inconsolata.vlw");
     textFont(font);
   }
@@ -134,11 +134,11 @@ class Scrollbar {
     fill(150, 0, 360*valueInactiveMult);
     text(constrain(map(getPos(), sposMin, sposMax, 0, 1), 0, 1), sposMax, ypos + sheight - (textDescent() + textAscent())/2);
   }
-  
+
   float getValue() {
     return value;
   }
-  
+
   void setValue(float val) {
     newspos = map(val, lo, hi, sposMin, sposMax);
   }
@@ -149,4 +149,3 @@ class Scrollbar {
     return spos * ratio;
   }
 }
-
