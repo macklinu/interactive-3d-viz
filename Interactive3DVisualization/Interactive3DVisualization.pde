@@ -19,7 +19,7 @@
 import de.looksgood.ani.*;
 
 FryTable salaryTable; // Processing's built-in Table class (2.0+) wasn't working natively, so I used the one from Ben Fry's Visualizing Data
-Table saveTable, readTable;
+Table saveTable;
 Scrollbar[] scrollbars;
 
 int w = 1280, h = 720;
@@ -66,7 +66,7 @@ void setup() {
   createSaveTable();
   loadData("salary.tsv");
   lines = loadStrings(dataPath("animation/20130327_015220_cameraPoints.csv"));
-  for (int i=0; i < lines.length; i++) {
+  for (int i = 0; i < lines.length; i++) {
     String [] chars = split(lines[i], ",");
     if (chars.length > csvWidth) {
       csvWidth = chars.length;
@@ -82,7 +82,6 @@ void setup() {
   }
   onRunTime = timestamp();
   scrollbars = new Scrollbar[cameraNames.length];
-
   for (int i = 0; i < scrollbars.length; i++) {
     scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 8, scrollbars, cameraNames[i], cameraValuesLo[i], cameraValuesHi[i]);
   }
@@ -188,7 +187,8 @@ void drawData() {
     float sz = map(x[i], xMin, xMax, 5, 15);
     pushMatrix();
     noStroke();
-    fill(hue, 360, 360);
+    if (dist(mouseX, mouseY, screenX(tx, ty, tz), screenY(tx, ty, tz)) < sz) fill(hue, 360, 360, 220);
+    else fill(hue, 360, 360);
     ambient(255, 26, 160);
     translate(tx, ty, tz);
     sphere(sz);
