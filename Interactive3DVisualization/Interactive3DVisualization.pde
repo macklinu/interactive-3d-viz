@@ -19,7 +19,7 @@
 import de.looksgood.ani.*;
 
 FryTable salaryTable; // Processing's built-in Table class (2.0+) wasn't working natively, so I used the one from Ben Fry's Visualizing Data
-Table saveTable;
+Table saveTable, readTable;
 Scrollbar[] scrollbars;
 
 int w = 1280, h = 720;
@@ -29,6 +29,8 @@ int colCount;
 float[] x, y, z; // three data sets I'm using to
 String[] labels;
 String onRunTime;
+
+int cur = 1;
 
 float mx, my, diameter;
 float cameraY, fov, cameraZ, aspect;
@@ -50,6 +52,10 @@ float[] cameraValuesHi = {
   w, w, w / tan(PI*30.0 / 180.0), w, w, w, 1.0, 1.0, 1.0
 };
 
+String[] lines;
+String[][] csv;
+int csvWidth = 0;
+
 void setup() {
   // sketch initialization
   size(w, h, P3D);
@@ -59,8 +65,22 @@ void setup() {
   // prepare data
   createSaveTable();
   loadData("salary.tsv");
+  lines = loadStrings(dataPath("animation/20130327_015220_cameraPoints.csv"));
+  for (int i=0; i < lines.length; i++) {
+    String [] chars = split(lines[i], ",");
+    if (chars.length > csvWidth) {
+      csvWidth = chars.length;
+    }
+  }
+  csv = new String [lines.length][csvWidth];
+  for (int i = 0; i < lines.length; i++) {
+    String [] temp = new String [lines.length];
+    temp= split(lines[i], ",");
+    for (int j = 0; j < temp.length; j++) {
+      csv[i][j] = temp[j];
+    }
+  }
   onRunTime = timestamp();
-
   scrollbars = new Scrollbar[cameraNames.length];
 
   for (int i = 0; i < scrollbars.length; i++) {
@@ -107,7 +127,24 @@ void mouseReleased() {
 
 void keyPressed() {
   if (key == CODED) {
-    if (keyCode == UP) ;
+    if (keyCode == LEFT) {
+      int test = cur;
+      cur = constrain(--cur, 1, lines.length);
+      if (test != cur) {
+        for (int i = 0; i < csvWidth; i++) {
+          scrollbars[i].setValue(parseFloat(csv[cur][i]));
+        }
+      }
+    }
+    if (keyCode == RIGHT) {
+      int test = cur;
+      cur = constrain(++cur, 1, lines.length - 1);
+      if (test != cur) {
+        for (int i = 0; i < csvWidth; i++) {
+          scrollbars[i].setValue(parseFloat(csv[cur][i]));
+        }
+      }
+    }
   }
   if (key == 's' || key == 'S') {
     TableRow newRow = saveTable.addRow();

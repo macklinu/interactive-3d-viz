@@ -130,13 +130,17 @@ class Scrollbar {
       fill(150, 0, 360*valueMult);
       Ani.to(this, 0.3, "valueMult", valueInactiveMult);
     }
-    text(getValue(), sposMin + 4, ypos + sheight/2 + textAscent()/2);
+    text(id, sposMin + 4, ypos + sheight/2 + textAscent()/2);
     fill(150, 0, 360*valueInactiveMult);
     text(constrain(map(getPos(), sposMin, sposMax, 0, 1), 0, 1), sposMax, ypos + sheight - (textDescent() + textAscent())/2);
   }
   
   float getValue() {
     return value;
+  }
+  
+  void setValue(float val) {
+    newspos = map(val, lo, hi, sposMin, sposMax);
   }
 
   float getPos() {
