@@ -1,3 +1,10 @@
+// Borrowed code from Scrollbar and Handles examples (Examples/Topics/GUI)
+//
+// Added a locked position so you can only interact with one scrollbar at a time
+// Added an ID for the scrollbar
+// Added custom output value, which is now stored in this class
+// so if you know the minimum and maximum values of the slider, you can input them on creation
+
 class Scrollbar {
   int swidth, sheight;    // width and height of bar
   float xpos, ypos;       // x and y position of bar
@@ -5,17 +12,18 @@ class Scrollbar {
   float sposMin, sposMax; // max and min values of slider
   int loose;              // how loose/heavy
   boolean over;           // is the mouse over the slider?
-  boolean press;
-  boolean locked = false;
-  boolean otherslocked = false;
+  boolean press;          // is the mouse pressed?
+  boolean locked = false; // if the mouse is pressed, I am locked in on this scrollbar
+  boolean otherslocked = false;  // if there are multiple scrollbars, are any of the others locked?
   float ratio;
   float scrollbarMult, scrollbarActiveMult, scrollbarInactiveMult;
   float valueMult, valueInactiveMult, valueActiveMult;
   Scrollbar[] others;
   String id;
+  float value, lo, hi;
   PFont font;
 
-  Scrollbar (float xp, float yp, int sw, int sh, int l, Scrollbar[] others, String id) {
+  Scrollbar (float xp, float yp, int sw, int sh, int l, Scrollbar[] others, String id, float lo, float hi) {
     swidth = sw;
     sheight = sh;
     int widthtoheight = sw - sh;
@@ -29,6 +37,8 @@ class Scrollbar {
     loose = l;
     this.others = others;
     this.id = id;
+    this.lo = lo;
+    this.hi = hi;
 
     Ani.init(Interactive3DVisualization.this);
     scrollbarActiveMult = .3;
@@ -44,6 +54,7 @@ class Scrollbar {
   }
 
   void update() {
+    value = map(spos, sposMin, sposMax, lo, hi);
     // first test to see if the other scrollbars are being hovered over
     for (int i = 0; i < others.length; i++) {
       if (others[i].locked == true) {
@@ -119,9 +130,13 @@ class Scrollbar {
       fill(150, 0, 360*valueMult);
       Ani.to(this, 0.3, "valueMult", valueInactiveMult);
     }
-    text(id, sposMin + 4, ypos + sheight/2 + textAscent()/2);
+    text(getValue(), sposMin + 4, ypos + sheight/2 + textAscent()/2);
     fill(150, 0, 360*valueInactiveMult);
-    text(map(getPos(), 0, width, 0, 1), sposMax, ypos + sheight - (textDescent() + textAscent())/2);
+    text(constrain(map(getPos(), sposMin, sposMax, 0, 1), 0, 1), sposMax, ypos + sheight - (textDescent() + textAscent())/2);
+  }
+  
+  float getValue() {
+    return value;
   }
 
   float getPos() {

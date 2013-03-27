@@ -1,4 +1,5 @@
-/* Macklin Underdown
+/** 
+ * Macklin Underdown
  * 3D visualization test
  *
  * Data downloaded from http://www-958.ibm.com/software/data/cognos/manyeyes/datasets/umcp-tenure-faculty-mean-salary-us-2/versions/1
@@ -20,6 +21,9 @@ import de.looksgood.ani.*;
 FryTable salaryTable; // Processing's built-in Table class (2.0+) wasn't working natively, so I used the one from Ben Fry's Visualizing Data
 Table saveTable;
 Scrollbar[] scrollbars;
+
+int w = 1280, h = 720;
+
 int rowCount;
 int colCount;
 float[] x, y, z; // three data sets I'm using to
@@ -39,46 +43,38 @@ String[] cameraNames = {
   "eyeX", "eyeY", "eyeZ", "centerX", "centerY", "centerZ", "upX", "upY", "upZ"
 };
 float[] cameraValues = new float[cameraNames.length];
+float[] cameraValuesLo = {
+  0, 0, 0, 0, 0, 0, 0, 0, -1.0
+};
+float[] cameraValuesHi = {
+  w, w, w / tan(PI*30.0 / 180.0), w, w, w, 1.0, 1.0, 1.0
+};
 
 void setup() {
-  size(1280, 720, P3D);
+  // sketch initialization
+  size(w, h, P3D);
   smooth();
   noStroke();
   colorMode(HSB, 360);
+  // prepare data
   createSaveTable();
   loadData("salary.tsv");
-
-  mx = my = 0.5;
-  fov = mx * PI/2;
-  cameraY = height/2.0;
-  cameraZ = cameraY / tan(fov / 2.0);
-  aspect = float(width)/float(height);
-
   onRunTime = timestamp();
 
   scrollbars = new Scrollbar[cameraNames.length];
 
   for (int i = 0; i < scrollbars.length; i++) {
-    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 8, scrollbars, cameraNames[i]);
+    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 8, scrollbars, cameraNames[i], cameraValuesLo[i], cameraValuesHi[i]);
   }
-
-  //eyeX; eyeY; eyeZ; centerX; centerY; centerZ; upX; upY; upZ;
 }
 
 void draw() {
   background(300);
   // allow for interactive camera via mouse position
-  camera(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
-  //camera(mouseX, height/2, (height/2) / tan(PI/6), mouseX, height/2, 0, 0, 1, 0);
+  setCamera();
+  camera(cameraValues[0], cameraValues[1], cameraValues[2], cameraValues[3], cameraValues[4], cameraValues[5], cameraValues[6], cameraValues[7], cameraValues[8]);
   lights();
   directionalLight(255, 255, 255, 0, 0, 1);
-
-  /*
-  pushMatrix();
-   translate(0, 0, -700);
-   rect(-width, -height, width*2, height*2);
-   popMatrix();
-   */
   drawAxes();
   drawData();
 
@@ -90,53 +86,17 @@ void draw() {
   hint(ENABLE_DEPTH_TEST);
 }
 
+void setCamera() {
+  for (int i = 0; i < scrollbars.length; i++) {
+    cameraValues[i] = scrollbars[i].getValue();
+  }
+}
+
 void drawScrollbars() {
   for (int i = 0; i < scrollbars.length; i++) {
     scrollbars[i].update();
     scrollbars[i].display();
   }
-  //assignScrollbars();
-}
-
-/*
-// Need to figure out why this won't work
- void assignScrollbar(float in, Scrollbar s) {
- textSize(12);
- fill(20);
- in = constrain(map(s.getPos(), 0, s.sposMax, 0, width), 0, width);
- text(map(in, 0, width, 0, 1), s.sposMax, s.ypos + s.sheight/2);
- }
- */
-void assignScrollbars() {
-  textSize(12);
-  fill(20);
-  eyeX = constrain(map(scrollbars[0].getPos(), 0, scrollbars[0].sposMax, 0, width), 0, width);
-  text("eyeX", scrollbars[0].sposMin, scrollbars[0].ypos + scrollbars[0].sheight/2 + textAscent()/2);
-  text(map(eyeX, 0, width, 0, 1), scrollbars[0].sposMax, scrollbars[0].ypos + scrollbars[0].sheight/2);
-  eyeY = constrain(map(scrollbars[1].getPos(), 0, scrollbars[1].sposMax, 0, width), 0, width);
-  text("eyeY", scrollbars[1].sposMin, scrollbars[1].ypos + scrollbars[1].sheight/2 + textAscent()/2);
-  text(map(eyeY, 0, width, 0, 1), scrollbars[1].sposMax, scrollbars[1].ypos + scrollbars[1].sheight/2);
-  eyeZ = constrain(map(scrollbars[2].getPos(), 0, scrollbars[2].sposMax, 0, width / tan(PI*30.0 / 180.0)), 0, width / tan(PI*30.0 / 180.0));
-  text("eyeZ", scrollbars[2].sposMin, scrollbars[2].ypos + scrollbars[2].sheight/2 + textAscent()/2);
-  text(map(eyeZ, 0, width / tan(PI*30.0 / 180.0), 0, 1), scrollbars[2].sposMax, scrollbars[2].ypos + scrollbars[2].sheight/2);
-  centerX = constrain(map(scrollbars[3].getPos(), 0, scrollbars[3].sposMax, 0, width), 0, width);
-  text("centerX", scrollbars[3].sposMin, scrollbars[3].ypos + scrollbars[3].sheight/2 + textAscent()/2);
-  text(map(centerX, 0, width, 0, 1), scrollbars[3].sposMax, scrollbars[3].ypos + scrollbars[3].sheight/2);
-  centerY = constrain(map(scrollbars[4].getPos(), 0, scrollbars[4].sposMax, 0, width), 0, width);
-  text("centerY", scrollbars[4].sposMin, scrollbars[4].ypos + scrollbars[4].sheight/2 + textAscent()/2);
-  text(map(centerY, 0, width, 0, 1), scrollbars[4].sposMax, scrollbars[4].ypos + scrollbars[4].sheight/2);
-  centerZ = constrain(map(scrollbars[5].getPos(), 0, scrollbars[5].sposMax, 0, width), 0, width);
-  text("centerZ", scrollbars[5].sposMin, scrollbars[5].ypos + scrollbars[5].sheight/2 + textAscent()/2);
-  text(map(centerZ, 0, width, 0, 1), scrollbars[5].sposMax, scrollbars[5].ypos + scrollbars[5].sheight/2);
-  upX = constrain(map(scrollbars[6].getPos(), 0, scrollbars[6].sposMax, 0.0, 1.0), 0.0, 1.0);
-  text("upX", scrollbars[6].sposMin, scrollbars[6].ypos + scrollbars[6].sheight/2 + textAscent()/2);
-  text(upX, scrollbars[6].sposMax, scrollbars[6].ypos + scrollbars[6].sheight/2);
-  upY = constrain(map(scrollbars[7].getPos(), 0, scrollbars[7].sposMax, 0.0, 1.0), 0.0, 1.0);
-  text("upY", scrollbars[7].sposMin, scrollbars[7].ypos + scrollbars[7].sheight/2 + textAscent()/2);
-  text(upY, scrollbars[7].sposMax, scrollbars[7].ypos + scrollbars[7].sheight/2);
-  upZ = constrain(map(scrollbars[8].getPos(), 0, scrollbars[8].sposMax, -1.0, 1.0), -1.0, 1.0);
-  text("upZ", scrollbars[8].sposMin, scrollbars[8].ypos + scrollbars[8].sheight/2 + textAscent()/2);
-  text(upZ, scrollbars[8].sposMax, scrollbars[8].ypos + scrollbars[8].sheight/2);
 }
 
 void mouseReleased() {
@@ -151,40 +111,21 @@ void keyPressed() {
   }
   if (key == 's' || key == 'S') {
     TableRow newRow = saveTable.addRow();
-    newRow.setFloat("eyeX", eyeX);
-    newRow.setFloat("eyeY", eyeY);
-    newRow.setFloat("eyeZ", eyeZ);
-    newRow.setFloat("centerX", centerX);
-    newRow.setFloat("centerY", centerY);
-    newRow.setFloat("centerZ", centerZ);
-    newRow.setFloat("upX", upX);
-    newRow.setFloat("upY", upY);
-    newRow.setFloat("upZ", upZ);
+    for (int i = 0; i < cameraNames.length; i++) {
+      newRow.setFloat(cameraNames[i], cameraValues[i]);
+    }
     saveTable(saveTable, "data/animation/" + onRunTime + "_cameraPoints.csv");
   }
-
   if (key == 'h' || key == 'H') showGUI = !showGUI;
 }
 
 void createSaveTable() {
   saveTable = createTable();
-  saveTable.addColumn("eyeX");
-  saveTable.addColumn("eyeY");
-  saveTable.addColumn("eyeZ");
-  saveTable.addColumn("centerX");
-  saveTable.addColumn("centerY");
-  saveTable.addColumn("centerZ");
-  saveTable.addColumn("upX");
-  saveTable.addColumn("upY");
-  saveTable.addColumn("upZ");
+  for (int i = 0; i < cameraNames.length; i++) {
+    saveTable.addColumn(cameraNames[i]);
+  }
 }
 
-
-void rotatePlanes() {
-  rotateX(-PI/6* mouseX/float(width));
-  rotateY(PI/3 * PI * mouseY/float(height));
-  rotateZ(mouseX/float(width) * PI);
-}
 
 void drawAxes() {
   fill(0);
