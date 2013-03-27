@@ -23,24 +23,23 @@ class Camera {
   }
 
   String getId(int i) {
-   return id[i];
+    return id[i];
   }
-  
+
   float getLo(int i) {
     return lo[i];
   }
-  
+
   float getHi(int i) {
     return hi[i];
   }
-  
+
   float getValue(int i) {
     return values[i];
   }
-  
+
   int getLength() {
     return id.length;
   }
-  
 }
 

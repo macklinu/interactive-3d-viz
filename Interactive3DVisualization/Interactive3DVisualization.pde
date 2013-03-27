@@ -34,25 +34,12 @@ String onRunTime;
 
 int cur = 1;
 
-float mx, my, diameter;
-float cameraY, fov, cameraZ, aspect;
 
 float xMin, yMin, zMin;
 float xMax, yMax, zMax;
 // camera variables
-float eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ;
 boolean showGUI = true;
 
-String[] cameraNames = {
-  "eyeX", "eyeY", "eyeZ", "centerX", "centerY", "centerZ", "upX", "upY", "upZ"
-};
-float[] cameraValues = new float[cameraNames.length];
-float[] cameraValuesLo = {
-  0, 0, 0, 0, 0, 0, -1.0, -1.0, -1.0
-};
-float[] cameraValuesHi = {
-  w, w, w / tan(PI*30.0 / 180.0), w, w, w, 1.0, 1.0, 1.0
-};
 
 void setup() {
   // sketch initialization
@@ -61,8 +48,8 @@ void setup() {
   noStroke();
   colorMode(HSB, 360);
   onRunTime = timestamp();
-  scrollbars = new Scrollbar[cameraNames.length];
   cam = new Camera();
+  scrollbars = new Scrollbar[cam.getLength()];
   for (int i = 0; i < scrollbars.length; i++) {
     scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 8, scrollbars, cam.getId(i), cam.getLo(i), cam.getHi(i));
   }
