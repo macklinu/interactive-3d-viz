@@ -21,6 +21,7 @@ import de.looksgood.ani.*;
 FryTable salaryTable; // Processing's built-in Table class (2.0+) wasn't working natively, so I used the one from Ben Fry's Visualizing Data
 Table saveTable;
 Scrollbar[] scrollbars;
+Camera cam;
 CSV readTable;
 
 int w = 1280, h = 720;
@@ -47,15 +48,11 @@ String[] cameraNames = {
 };
 float[] cameraValues = new float[cameraNames.length];
 float[] cameraValuesLo = {
-  0, 0, 0, 0, 0, 0, 0, 0, -1.0
+  0, 0, 0, 0, 0, 0, -1.0, -1.0, -1.0
 };
 float[] cameraValuesHi = {
   w, w, w / tan(PI*30.0 / 180.0), w, w, w, 1.0, 1.0, 1.0
 };
-
-String[] lines;
-String[][] csv;
-int csvWidth = 0;
 
 void setup() {
   // sketch initialization
@@ -63,39 +60,23 @@ void setup() {
   smooth();
   noStroke();
   colorMode(HSB, 360);
+  onRunTime = timestamp();
+  scrollbars = new Scrollbar[cameraNames.length];
+  cam = new Camera();
+  for (int i = 0; i < scrollbars.length; i++) {
+    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 8, scrollbars, cam.getId(i), cam.getLo(i), cam.getHi(i));
+  }
+  
   // prepare data
   createSaveTable();
   loadData("salary.tsv");
   readTable = new CSV(dataPath("animation/20130327_015220_cameraPoints.csv"));
-  /*
-  lines = loadStrings(dataPath("animation/20130327_015220_cameraPoints.csv"));
-  for (int i = 0; i < lines.length; i++) {
-    String [] chars = split(lines[i], ",");
-    if (chars.length > csvWidth) {
-      csvWidth = chars.length;
-    }
-  }
-  csv = new String [lines.length][csvWidth];
-  for (int i = 0; i < lines.length; i++) {
-    String [] temp = new String [lines.length];
-    temp= split(lines[i], ",");
-    for (int j = 0; j < temp.length; j++) {
-      csv[i][j] = temp[j];
-    }
-  }
-  */
-  onRunTime = timestamp();
-  scrollbars = new Scrollbar[cameraNames.length];
-  for (int i = 0; i < scrollbars.length; i++) {
-    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 8, scrollbars, cameraNames[i], cameraValuesLo[i], cameraValuesHi[i]);
-  }
 }
 
 void draw() {
   background(300);
-  // allow for interactive camera via mouse position
-  setCamera();
-  camera(cameraValues[0], cameraValues[1], cameraValues[2], cameraValues[3], cameraValues[4], cameraValues[5], cameraValues[6], cameraValues[7], cameraValues[8]);
+  for (int i = 0; i < scrollbars.length; i++) cam.update(i, scrollbars[i]);
+  cam.display();
   lights();
   directionalLight(255, 255, 255, 0, 0, 1);
   drawAxes();
@@ -107,12 +88,6 @@ void draw() {
   noLights();
   if (showGUI) drawScrollbars();
   hint(ENABLE_DEPTH_TEST);
-}
-
-void setCamera() {
-  for (int i = 0; i < scrollbars.length; i++) {
-    cameraValues[i] = scrollbars[i].getValue();
-  }
 }
 
 void drawScrollbars() {
@@ -141,7 +116,7 @@ void keyPressed() {
     }
     if (keyCode == RIGHT) {
       int test = cur;
-      cur = constrain(++cur, 1, readTable.getRowCount());
+      cur = constrain(++cur, 1, readTable.getRowCount() - 1);
       if (test != cur) {
         for (int i = 0; i < readTable.getColumnCount(); i++) {
           scrollbars[i].setValue(readTable.getFloat(cur, i));
@@ -151,8 +126,8 @@ void keyPressed() {
   }
   if (key == 's' || key == 'S') {
     TableRow newRow = saveTable.addRow();
-    for (int i = 0; i < cameraNames.length; i++) {
-      newRow.setFloat(cameraNames[i], cameraValues[i]);
+    for (int i = 0; i < cam.getLength(); i++) {
+      newRow.setFloat(cam.getId(i), cam.getValue(i));
     }
     saveTable(saveTable, "data/animation/" + onRunTime + "_cameraPoints.csv");
   }
@@ -161,8 +136,8 @@ void keyPressed() {
 
 void createSaveTable() {
   saveTable = createTable();
-  for (int i = 0; i < cameraNames.length; i++) {
-    saveTable.addColumn(cameraNames[i]);
+  for (int i = 0; i < cam.getLength(); i++) {
+    saveTable.addColumn(cam.getId(i));
   }
 }
 
@@ -172,6 +147,7 @@ void drawAxes() {
   strokeWeight(1);
   stroke(0, 360, 360, 360);
   line(0, 0, 0, width, 0, 0);
+  box(30);
   textSize(48);
   text("x", width, 0, 0);
   stroke(127, 360, 360, 360);

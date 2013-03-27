@@ -20,6 +20,7 @@ class Scrollbar {
   float valueMult, valueInactiveMult, valueActiveMult;
   Scrollbar[] others;
   String id;
+  int idOffset;
   float value, lo, hi;
   PFont font;
 
@@ -39,6 +40,7 @@ class Scrollbar {
     this.id = id;
     this.lo = lo;
     this.hi = hi;
+    idOffset = 4;
 
     Ani.init(Interactive3DVisualization.this);
     scrollbarActiveMult = .3;
@@ -123,14 +125,26 @@ class Scrollbar {
   private void displayText() {
     textSize(14);
     if (over || locked) {
+      /*
       fill(150, 0, 360*valueMult);
       Ani.to(this, 0.3, "valueMult", valueActiveMult);
+      */
+      if (spos < textWidth(id)) {
+        fill(150, 0, 360*valueMult);
+        Ani.to(this, 0.3, "valueMult", valueInactiveMult);
+      }
+      if (spos > textWidth(id)) {
+        fill(150, 0, 360*valueMult);
+        Ani.to(this, 0.3, "valueMult", valueActiveMult);
+      }
     } 
     else {
-      fill(150, 0, 360*valueMult);
-      Ani.to(this, 0.3, "valueMult", valueInactiveMult);
+
+        fill(150, 0, 360*valueMult);
+        Ani.to(this, 0.3, "valueMult", valueInactiveMult);
+
     }
-    text(id, sposMin + 4, ypos + sheight/2 + textAscent()/2);
+    text(id, sposMin + idOffset, ypos + sheight/2 + textAscent()/2);
     fill(150, 0, 360*valueInactiveMult);
     text(constrain(map(getPos(), sposMin, sposMax, 0, 1), 0, 1), sposMax, ypos + sheight - (textDescent() + textAscent())/2);
   }
@@ -149,3 +163,4 @@ class Scrollbar {
     return spos * ratio;
   }
 }
+
