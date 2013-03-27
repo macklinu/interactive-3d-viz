@@ -37,8 +37,11 @@ int cur = 1;
 
 float xMin, yMin, zMin;
 float xMax, yMax, zMax;
+float[] tx, ty, tz;
 // camera variables
 boolean showGUI = true;
+boolean show3D = true;
+boolean hoverOver = false;
 
 
 void setup() {
@@ -51,29 +54,38 @@ void setup() {
   cam = new Camera();
   scrollbars = new Scrollbar[cam.getLength()];
   for (int i = 0; i < scrollbars.length; i++) {
-    scrollbars[i] = new Scrollbar(0, i * 20 + 20, width/2, 15, 8, scrollbars, cam.getId(i), cam.getLo(i), cam.getHi(i));
+    scrollbars[i] = new Scrollbar(width/1.4, i * 20 + height/1.4, width/4, 15, 8, scrollbars, cam.getId(i), cam.getLo(i), cam.getHi(i));
   }
-  
+
   // prepare data
   createSaveTable();
   loadData("salary.tsv");
+  tx = ty = tz = new float[x.length];
   readTable = new CSV(dataPath("animation/20130327_015220_cameraPoints.csv"));
 }
 
 void draw() {
   background(300);
-  for (int i = 0; i < scrollbars.length; i++) cam.update(i, scrollbars[i]);
-  cam.display();
-  lights();
-  directionalLight(255, 255, 255, 0, 0, 1);
-  drawAxes();
-  drawData();
-
+  if (show3D) {
+    for (int i = 0; i < scrollbars.length; i++) cam.update(i, scrollbars[i]);
+    cam.display();
+    lights();
+    directionalLight(255, 255, 255, 0, 0, 1);
+    drawAxes();
+    drawData();
+  }
   // 2D code goes here
   hint(DISABLE_DEPTH_TEST);
   camera();
   noLights();
-  if (showGUI) drawScrollbars();
+  if (showGUI && show3D) drawScrollbars();
+  if (!show3D) {
+    stroke(0);
+    strokeWeight(2);
+    textSize(48);
+    text("2D mode", width/2, height/2);
+  }
+  //text(
   hint(ENABLE_DEPTH_TEST);
 }
 
@@ -119,6 +131,7 @@ void keyPressed() {
     saveTable(saveTable, "data/animation/" + onRunTime + "_cameraPoints.csv");
   }
   if (key == 'h' || key == 'H') showGUI = !showGUI;
+  if (key == '3') show3D = !show3D;
 }
 
 void createSaveTable() {
@@ -154,7 +167,10 @@ void drawData() {
     float sz = map(x[i], xMin, xMax, 5, 15);
     pushMatrix();
     noStroke();
-    if (dist(mouseX, mouseY, screenX(tx, ty, tz), screenY(tx, ty, tz)) < sz) fill(hue, 360, 360, 220); // 3D picking
+    if (dist(mouseX, mouseY, screenX(tx, ty, tz), screenY(tx, ty, tz)) < sz) { // 3D picking
+      fill(hue, 360, 360, 220);
+      hoverOver = true;
+    }
     else fill(hue, 360, 360);
     ambient(255, 26, 160);
     translate(tx, ty, tz);

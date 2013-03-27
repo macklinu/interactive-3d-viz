@@ -117,7 +117,7 @@ class Scrollbar {
       fill(148, 360*.49, 360*scrollbarMult);
       Ani.to(this, 0.3, "scrollbarMult", scrollbarInactiveMult);
     }
-    rect(xpos, ypos, spos, sheight, 2);
+    rect(xpos, ypos, spos - xpos, sheight, 2);
     // display the scrollbar ID and value ideally
     displayText();
   }
@@ -125,24 +125,19 @@ class Scrollbar {
   private void displayText() {
     textSize(14);
     if (over || locked) {
-      /*
-      fill(150, 0, 360*valueMult);
-      Ani.to(this, 0.3, "valueMult", valueActiveMult);
-      */
-      if (spos < textWidth(id)) {
+      if (spos < (textWidth(id) + idOffset)) {
         fill(150, 0, 360*valueMult);
         Ani.to(this, 0.3, "valueMult", valueInactiveMult);
       }
-      if (spos > textWidth(id)) {
+      if (spos > (textWidth(id) + idOffset)) {
         fill(150, 0, 360*valueMult);
         Ani.to(this, 0.3, "valueMult", valueActiveMult);
       }
     } 
     else {
 
-        fill(150, 0, 360*valueMult);
-        Ani.to(this, 0.3, "valueMult", valueInactiveMult);
-
+      fill(150, 0, 360*valueMult);
+      Ani.to(this, 0.3, "valueMult", valueInactiveMult);
     }
     text(id, sposMin + idOffset, ypos + sheight/2 + textAscent()/2);
     fill(150, 0, 360*valueInactiveMult);
